@@ -1,0 +1,13 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+<h1>Previous Leagues</h1>
+
+{% for league in all_leagues %}
+
+  <h4><a href="{% url 'schedule' league.id %}">{{ league.title }}</a></h4><br>
+
+{% endfor %}
+
+{% endblock %}

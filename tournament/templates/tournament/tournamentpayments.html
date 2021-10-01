@@ -1,0 +1,40 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+{% if request.user.is_superuser %}
+<div class="tournament-payments">
+  <h5>{{ tournament.name }} Tournament Payments</h5>
+  <form method="post" action="{% url 'tournamentpayments' tournament.id %}">
+    {% csrf_token %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Num</th>
+          <th>Team Name</th>
+          <th>Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for team in tournament.teams.all %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ team.team_name }}</td>
+          <td>
+            <input class="form-check-input" type="checkbox" name="{{ team.pk }}" id="{{ team.pk }}" {% if team.paid %}checked{% endif %}>
+            <label class="form-check-label" for="{{ team.pk }}">{{ team.payment|truncatechars:6 }}</label>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div style="text-align:right">
+      <button type="submit" style="right:0" class="btn btn-success">Update</button>
+    </div>
+  </form>
+</div>
+{% else %}
+<h5>Sorry, you are not allowed to view this page</h5>
+{% endif %}
+
+{% endblock %}

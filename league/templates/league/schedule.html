@@ -1,0 +1,384 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+{% load leaguetags %}
+{% load static %}
+
+{% if message %}
+  <script>alert("{{ message }}")</script>
+{% endif %}
+
+<br>
+
+{% if not league.completed and not request.user == league.user and not request.user.is_superuser %}
+<form class="container-fluid form-vertical" method="post" action="">
+  {% csrf_token %}
+  <input class="form-control" type="text" name="username" placeholder="Username" required>
+  <input class="form-control" type="text" name="password" placeholder="Password" required>
+  <input name="enable-editing" type="text" style="display:none" />
+  <button type="submit" class="btn btn-success">Enable Editing</button>
+</form>
+{% else %}
+Editing Enabled
+{% endif %}
+
+{% if league.matches.count == 0 %}
+<form class="container-fluid" action="{% url 'schedule' league.id %}" method="POST">
+  {% csrf_token %}
+  <div class="form-group">
+    <input class="form-control" name="num-weeks" class="input" type="number" min="0" max="12" placeholder="Number of weeks" required>
+    <input class="form-control" name="rounds-per-week" class="input" type="number" min="0" max="12" placeholder="Rounds per week" required>
+    <input class="form-control" name="password" type="password" placeholder="password" required>
+    <button name="generate-matches" class="btn btn-primary" type="submit">Generate Matches</button>
+  </div>
+</form>
+{% endif %}
+
+{% if league.matches.exists %}
+  <i class="bi bi-card-list hovering-button" id="standings-on"></i>
+{% endif %}
+
+<div class="standings">
+  <h4 style="display:inline; text-align:center; padding-top:3px;">Current Standings</h4><h2 style="right:15px; display:inline; position:fixed" id="standings-off"><i class="bi bi-x"></i></h2>
+  <table>
+    <tr>
+      <th>Rank</th>
+      <th>Team Name</th>
+      <th>Wins</th>
+      <th>Losses</th>
+      <th>PF</th>
+      <th>PA</th>
+      <th>+/-</th>
+    </tr>
+    {% for team in league.teams.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td style="text-align:left;">{{ team.team_name }}</td>
+        <td>{{ team.wins }}</td>
+        <td>{{ team.losses }}</td>
+        <td>{{ team.points_for }}</td>
+        <td>{{ team.points_against }}</td>
+        <td>{{ team.point_differential }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+
+<div class="toggle-container {% if league.weeks_completed %}off{% else %}on{% endif %}"><i class="bi bi-newspaper" style="font-size:2rem;"></i> <span style="font-size:20px;">League Schedule</span></div>
+
+{% if league.num_weeks > 0 %}
+<div class="league-container">
+  <!-- Loops number of weeks times -->
+  {% with ''|center:league.num_weeks as range %}
+    {% for i in range %}
+        <h5 class="toggle-container {% if league|week_complete:forloop.counter %}off{% else %}on{% endif %}">Week {{ forloop.counter }}</h5>
+        <div class="week" style="display:{% if league|week_complete:forloop.counter %}none{% endif %}">
+          <!-- Loops number of rounds per week times -->
+          {% with ''|center:league.rounds_per_week as range %}
+            {% for j in range %}
+
+              <div class="lround">
+                <h6 style="min-width:100%;">Round {{ forloop.counter }}</h6>
+                {% for match in league|week:forloop.parentloop.counter|round:forloop.counter %}
+                  <div class="lmatch" data-toggle="modal" data-target="#exampleModalCenter{{ forloop.parentloop.parentloop.counter }}{{ forloop.parentloop.counter }}{{ forloop.counter }}" data-backdrop="static">
+                    <div class="teams">
+                      {% if match.game1_team1_score > match.game1_team2_score and match.game2_team1_score > match.game2_team2_score or match.game1_team1_score > match.game1_team2_score and match.game3_team1_score > match.game3_team2_score or match.game3_team1_score > match.game3_team2_score and match.game2_team1_score > match.game2_team2_score %}
+                        <div class="bold">{{ match.team1 }}</div>
+                        <div class="match-divider"></div>
+                        {{ match.team2 }}
+                        {% elif match.game1_team1_score < match.game1_team2_score and match.game2_team1_score < match.game2_team2_score or match.game1_team1_score < match.game1_team2_score and match.game3_team1_score < match.game3_team2_score or match.game3_team1_score < match.game3_team2_score and match.game2_team1_score < match.game2_team2_score %}
+                          {{ match.team1 }}
+                          <div class="match-divider"></div>
+                          <div class="bold">{{ match.team2 }}</div>
+                        {% else %}
+                          {{ match.team1 }}
+                          <div class="match-divider"></div>
+                          {{ match.team2 }}
+                      {% endif %}
+                    </div>
+
+                    {% if match.winner1 == 1  %}
+                    <div class="score">
+                      {% if match.game1_team1_score > match.game1_team2_score %}
+                        <p class="bold">{{ match.game1_team1_score }}</p>
+                        <p>{{ match.game1_team2_score }}</p>
+                      {% else %}
+                        <p>{{ match.game1_team1_score }}</p>
+                        <p class="bold">{{ match.game1_team2_score }}</p>
+                      {% endif %}
+                    </div>
+                    {% else %}
+                      <div class="score">
+                        <p>-</p>
+                        <p>-</p>
+                      </div>
+                    {% endif %}
+
+                    {% if match.winner2 == 1  %}
+                    <div class="score">
+                      {% if match.game2_team1_score > match.game2_team2_score %}
+                        <p class="bold">{{ match.game2_team1_score }}</p>
+                        <p>{{ match.game2_team2_score }}</p>
+                      {% else %}
+                        <p>{{ match.game2_team1_score }}</p>
+                        <p class="bold">{{ match.game2_team2_score }}</p>
+                      {% endif %}
+                    </div>
+                    {% else %}
+                      <div class="score">
+                        <p>-</p>
+                        <p>-</p>
+                      </div>
+                    {% endif %}
+
+                    {% if match.winner3 == 1  %}
+                    <div class="score">
+                      {% if match.game3_team1_score > match.game3_team2_score %}
+                        <p class="bold">{{ match.game3_team1_score }}</p>
+                        <p>{{ match.game3_team2_score }}</p>
+                      {% else %}
+                        <p>{{ match.game3_team1_score }}</p>
+                        <p class="bold">{{ match.game3_team2_score }}</p>
+                      {% endif %}
+                    </div>
+                    {% else %}
+                      <div class="score">
+                        <p>-</p>
+                        <p>-</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                  {% if not league.completed and request.user == league.user or request.user.is_superuser %}
+                  <div class="modal fade" id="exampleModalCenter{{ forloop.parentloop.parentloop.counter }}{{ forloop.parentloop.counter }}{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLongTitle">Week {{ forloop.parentloop.parentloop.counter }} Round {{ forloop.parentloop.counter }} Report</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="modal-items">
+                            <div class="score-report-teams">
+                              <h6 class="team"></h6>
+                              <h6 class="team">{{ match.team1.team_name }}</h6>
+                              <h6 class="team">{{ match.team2.team_name }}</h6>
+                            </div>
+
+                            <div class="score-report" style="display:{% if match.winner1 %}none{% endif %}">
+                              {% csrf_token %}
+                              <h6>Game 1</h6>
+                              <input name="score1" class="input" type="number" min="0" max="25" required/>
+                              <input name="score2" class= "input" type="number" min="0" max="25" required/>
+                              <input name="game-no" value="1" type="number" style="display: none" />
+                              <input name="match-id" value="{{ match.id }}" type="number" style="display: none" />
+                              <input name="league-id" value="{{ league.id }}" type="number" style="display: none" />
+                              <button name="report-score" class="btn btn-success report-lscore">Report</button>
+                              <button name="update-score" class="btn btn-success update-lscore" style="display:none;">Update</button>
+                            </div>
+
+                            <div class="modal-scores" style="display:{% if not match.winner1 %}none{% endif %}">
+                              {% if match.game1_team1_score > match.game1_team2_score %}
+                                <h6>Game 1</h6>
+                                <span name="score1-text" class="bold">{{ match.game1_team1_score }}</span>
+                                <span name="score2-text" style="padding-top:15px;">{{ match.game1_team2_score }}</span>
+                              {% else %}
+                                <h6>Game 1</h6>
+                                <span name="score1-text">{{ match.game1_team1_score }}</span>
+                                <span name="score2-text" class="bold" style="padding-top:15px;">{{ match.game1_team2_score }}</span>
+                              {% endif %}
+                              <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                            </div>
+
+
+                            <div class="score-report" style="display:{% if match.winner2 %}none{% endif %}">
+                              {% csrf_token %}
+                              <h6>Game 2</h6>
+                              <input name="score1" class="input" type="number" min="0" max="25"/>
+                              <input name="score2" class= "input" type="number" min="0" max="25"/>
+                              <input name="game-no" value="2" type="number" style="display: none" />
+                              <input name="match-id" value="{{ match.id }}" type="number" style="display: none" />
+                              <input name="league-id" value="{{ league.id }}" type="number" style="display: none" />
+                              <button name="report-score" class="btn btn-success report-lscore" type="submit">Report</button>
+                              <button name="update-score" class="btn btn-success update-lscore" style="display:none">Update</button>
+                            </div>
+
+                            <div class="modal-scores" style="display:{% if not match.winner2 %}none{% endif %}">
+                              {% if match.game2_team1_score > match.game2_team2_score %}
+                                <h6>Game 2</h6>
+                                <span name="score1-text" class="bold">{{ match.game2_team1_score }}</span>
+                                <span name="score2-text" style="padding-top:15px;">{{ match.game2_team2_score }}</span>
+                              {% else %}
+                                <h6>Game 2</h6>
+                                <span name="score1-text">{{ match.game2_team1_score }}</span>
+                                <span name="score2-text" class="bold" style="padding-top:15px;">{{ match.game2_team2_score }}</span>
+                              {% endif %}
+                                <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                            </div>
+
+                            <div class="score-report" style="display:{% if match.winner3 %}none{% endif %}">
+                              {% csrf_token %}
+                              <h6>Game 3</h6>
+                              <input name="score1" class="input" type="number" min="0" max="25"/>
+                              <input name="score2" class= "input" type="number" min="0" max="25"/>
+                              <input name="game-no" value="3" type="number" style="display: none" />
+                              <input name="match-id" value="{{ match.id }}" type="number" style="display: none" />
+                              <input name="league-id" value="{{ league.id }}" type="number" style="display: none" />
+                              <button name="report-score" class="btn btn-success report-lscore" type="submit">Report</button>
+                              <button name="update-score" class="btn btn-success update-lscore" style="display:none">Update</button>
+                            </div>
+                            <div class="modal-scores" style="display:{% if not match.winner3 %}none{% endif %}">
+                              {% if match.game3_team1_score > match.game3_team2_score %}
+                                <h6>Game 3</h6>
+                                <span name="score1-text" class="bold">{{ match.game3_team1_score }}</span>
+                                <span name="score2-text" style="padding-top:15px;">{{ match.game3_team2_score }}</span>
+                              {% else %}
+                                <h6>Game 3</h6>
+                                <span name="score1-text">{{ match.game3_team1_score }}</span>
+                                <span name="score2-text" class="bold" style="padding-top:15px;">{{ match.game3_team2_score }}</span>
+                              {% endif %}
+                                <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+
+              </div>
+
+            {% endfor %}
+          {% endwith %}
+
+        </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+{% endif %}
+
+<br>
+
+
+{% if league.brackets.count == 0 and league.weeks_completed %}
+<form class="container-fluid" action="{% url 'schedule' league.id %}" method="POST">
+  {% csrf_token %}
+
+  <input name="num-brackets" class="form-control type="number" min="0" max="12" placeholder="Number of brackets" required>
+  <input name="teams1" class="form-control type="number" min="0" max="12" placeholder="Teams in bracket 1" required>
+  <input name="teams2" class="form-control type="number" min="0" max="12" placeholder="Teams in bracket 2" required>
+  <input name="teams3" class="form-control type="number" min="0" max="12" placeholder="Teams in bracket 3" required>
+  <input class="form-control" name="password" type="password" placeholder="password" required>
+  <button name="generate-brackets" class="btn btn-primary" type="submit">Generate Brackets</button>
+</form>
+{% endif %}
+
+<div style="border-radius:15px;" class="toggle-container">
+  <i class="bi bi-diagram-2" id="toggle-tournament" style="font-size:2rem;"></i> <span id="toggle-tournament" style="font-size:20px;">Tournament Bracket</span>
+</div>
+
+<div class="ltournament-container">
+
+  {% for bracket in league.brackets.all %}
+  <div class="ltournament">
+    {% if bracket.sub_bracket_num == 1 %}
+    <h4>Bracket #{{ bracket.bracket_num }}</h4>
+    <div class="bracket tournament-{% if bracket.matches.count == 1 %}2{% elif bracket.matches.count > 1 and bracket.matches.count < 4 %}4{% elif bracket.matches.count > 3 and bracket.matches.count < 8 %}8{% elif bracket.matches.count > 7 and bracket.matches.count < 16 %}16{% endif %}">
+      {% if bracket.matches.count > 7 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:4 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines-16"></div>
+          <div class="bracket-lines-16"></div>
+          <div class="bracket-lines-16"></div>
+          <div class="bracket-lines-16"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 3 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:3 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines-quarters"></div>
+          <div class="bracket-lines-quarters"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 1 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:2 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines-semis"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 0 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:1 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+    {% elif bracket.sub_bracket_num > 1 %}
+    <h4>Bracket #{{ bracket.bracket_num }} {{ bracket.sub_bracket_num|bracket_name }}</h4>
+    <div class="bracket tournament-{% if bracket.matches.count == 1 %}2{% elif bracket.matches.count > 1 and bracket.matches.count < 4 %}4{% elif bracket.matches.count > 3 and bracket.matches.count < 8 %}8{% elif bracket.matches.count > 7 and bracket.matches.count < 16 %}16{% endif %}">
+      {% if bracket.matches.count > 7 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:4 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines32"></div>
+          <div class="bracket-lines32"></div>
+          <div class="bracket-lines32"></div>
+          <div class="bracket-lines32"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 3 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:3 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines16"></div>
+          <div class="bracket-lines16"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 1 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:2 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+        <div class="between-rounds">
+          <div class="bracket-lines-quarters"></div>
+        </div>
+      {% endif %}
+      {% if bracket.matches.count > 0 %}
+        <div class="round">
+          {% for match in league|bracket:bracket.id|tround:1 %}
+            {% include 'league/tmatch.html' %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}

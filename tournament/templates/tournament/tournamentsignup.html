@@ -1,0 +1,74 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+
+
+
+<div class="signup-container">
+
+
+  <div class="sign-up container-fluid">
+    {% if not tournament.pools.exists %}
+    <h1>Sign up for {{ tournament.name }} Tournament</h1>
+    <form action="{% url 'tournamentsignup' %}" class="form-vertical" method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <input class="form-control" type="text" name="team_name" placeholder="Team Name" required />
+        <input class="form-control" type="text" name="teammate1" placeholder="Teammate 1 Name" required />
+        <input class="form-control" type="tel" name="phone1" placeholder="Teammate 1 Phone"/>
+        <input class="form-control" type="text" name="teammate2" placeholder="Teammate 2 Name" required />
+        <input class="form-control" type="tel" name="phone2" placeholder="Teammate 2 Phone"/>
+        <label>Payment (${{ tournament.entry_price }})</label>
+        {% for paymentoption in tournament.payment_options.all %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="{{ paymentoption.option }}" value="{{ paymentoption.option }}" required>
+          <label class="form-check-label" for="{{ paymentoption.option }}">{{ paymentoption.option }}</label>
+        </div>
+        {% endfor %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="releasewaiver" required>
+          <label class="form-check-label" for="releasewaiver">
+            By checking this box you agree to our <a href="{% url 'releasewaiver' %}" target="_blank">Terms and Conditions</a>
+          </label>
+        </div>
+
+        <button class="btn btn-success" type="submit">Submit</button>
+      </div>
+      {% else %}
+        <h4>Sorry, but registration is now closed for this tournament</h4>
+      {% endif %}
+    </form>
+
+  </div>
+
+  <div class="signup-buttons">
+    <i class="bi bi-people-fill card-list hovering-button" id="teams-on"></i><br><br><br>
+    <i class="bi bi-file-image card-list hovering-button" id="poster-on"></i>
+  </div>
+
+  <div class="tournament-poster">
+    <img class="poster" style="max-height:80vh;" src="{{tournament.poster.url}}">
+    <div class="poster-overlay">
+      <div class="poster-x" id="poster-off"><i class="bi bi-x-circle" style="font-size:2rem;"></i></div>
+    </div>
+  </div>
+
+
+  <div class="signed-up-teams">
+
+    <div style="display:flex"><h4 style="display:inline; flex:2; text-align:right; padding-top:3px;">Signed-Up Teams</h4><h2 style="text-align:right; display:inline; flex:1; padding-top:3px; padding-right:3px;"><i class="bi bi-x-lg teams-x" id="teams-off"></i></h2></div>
+    <br>
+    {% for team in tournament.teams.all %}
+
+    <div class="signed-up-team">
+      <h6> {{ team.team_name }} </h6>
+      <span> {{ team.teammate1 }} and {{ team.teammate2 }}</span>
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+
+{% endblock %}

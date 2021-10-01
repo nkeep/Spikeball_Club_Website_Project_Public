@@ -1,0 +1,95 @@
+{% load index %}
+
+{% if tournament.matches.all.count > x|add:"-1" %}
+<div>
+  <div class="ltmatch" data-toggle="modal" data-target="#tmatch{{ x }}">
+
+    <div class="teams">
+      {% if tournament|index:x|score:1 > tournament|index:x|score:2 %}
+      <div class="bold">{{ tournament|index:x|team:1 }}</div>
+      <div class="match-divider"></div>
+      {{ tournament|index:x|team:2 }}
+      {% elif tournament|index:x|score:2 > tournament|index:x|score:1 %}
+      {{ tournament|index:x|team:1 }}
+      <div class="match-divider"></div>
+      <div class="bold">{{ tournament|index:x|team:2 }}</div>
+      {% else %}
+      {{ tournament|index:x|team:1 }}
+      <div class="match-divider"></div>
+      {{ tournament|index:x|team:2 }}
+      {% endif %}
+    </div>
+
+    {% if tournament|index:x|winner == 1  %}
+      {% if tournament|index:x|score:1 > tournament|index:x|score:2 %}
+      <div class="score">
+        <p class="bold">{{ tournament|index:x|score:1 }}</p>
+        <p>{{ tournament|index:x|score:2 }}</p>
+      </div>
+      {% elif tournament|index:x|score:1 < tournament|index:x|score:2 %}
+      <div class="score">
+        <p>{{ tournament|index:x|score:1 }}</p>
+        <p class="bold">{{ tournament|index:x|score:2 }}</p>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="score">
+        <p>-</p>
+        <p>-</p>
+      </div>
+    {% endif %}
+  </div>
+  {% if tournament|index:x|team:1 and tournament|index:x|team:2 and request.user == tournament.user or request.user.is_superuser %}
+  <div class="modal fade" id="tmatch{{ x }}" tabindex="-1" role="dialog" aria-labelledby="tmatchTitle" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">{{ tournament|index:x }} Report</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="modal-items">
+              <div class="score-report-teams">
+                <h6 class="team"></h6>
+                <h6 class="team">{{ tournament|index:x|team:1 }}</h6>
+                <h6 class="team">{{ tournament|index:x|team:2 }}</h6>
+              </div>
+
+              <form class="score-report" action="{% url 'tournamentbracket' tournament.id %}" method="POST" style="display:{% if tournament|index:x|winner %}none{% endif %}">
+                {% csrf_token %}
+                <h6>Result</h6>
+                <input name="score1" class="input" type="number" min="0" max="3" required/>
+                <input name="score2" class= "input" type="number" min="0" max="3" required/>
+                <input name="match" value="{{ x }}" type="text" style="display: none" />
+                <button class="btn btn-success" type="submit">Report</button>
+              </form>
+
+              <div class="modal-scores" style="display:{% if not tournament|index:x|winner %}none{% endif %}">
+                {% if tournament|index:x|score:1 > tournament|index:x|score:2 %}
+                  <h6>Score</h6>
+                  <span name="score1-text" class="bold">{{ tournament|index:x|score:1 }}</span>
+                  <span name="score2-text" style="padding-top:15px;">{{ tournament|index:x|score:2 }}</span>
+                  <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                {% else %}
+                  <h6>Score</h6>
+                  <span name="score1-text">{{ tournament|index:x|score:1 }}</span>
+                  <span name="score2-text" class="bold" style="padding-top:15px;">{{ tournament|index:x|score:2 }}</span>
+                  <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="blank-match"/>
+  {% endif %}
+
+</div>

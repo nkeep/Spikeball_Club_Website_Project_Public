@@ -1,0 +1,177 @@
+/* Sign up css */
+.signup-container{
+  display:flex;
+  flex-wrap: wrap;
+}
+
+.sign-up{
+  flex:4;
+}
+
+.signed-up-teams{
+  flex:1
+}
+
+/* League css */
+.league-container{
+  align-content:flex-start;
+  background-color: #F6F6F6;
+  padding-left: 5px;
+  border-radius: 10px;
+}
+
+.week {
+  display:flex;
+  justify-content: flex-start;
+}
+
+.lround{
+  display:flex;
+  width:auto%;
+  flex-wrap:wrap;
+}
+
+.lmatch{
+  display:flex;
+  flex:1;
+  font-size: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  max-width: 220px;
+  min-width: 220px;
+  height: 65px;
+  margin-right: 30px;
+  margin-bottom: 10px;
+}
+
+.lmatch .teams{
+  flex:4;
+  white-space: nowrap;
+  text-overflow: clip;
+  overflow: hidden
+}
+
+.score{
+  padding-right:7px;
+  text-align: center;
+}
+
+.modal-scores{
+  display:grid;
+  align-content: flex-start;
+  text-align: center;
+}
+
+.modal-items{
+  display: flex;
+  justify-content: space-between;
+}
+
+.score-report{
+  align-content: center;
+  width:90px;
+  text-align: center;
+}
+
+.score-report-teams .team{
+  margin-top: 13px;
+}
+
+.score-report-teams{
+  margin-top: -10px;
+  display:grid;
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+
+.score-report .input{
+  margin-bottom: 10px;
+  max-width: 75%;
+  line-height: 5px;
+}
+
+.league-modal{
+  background-color: #FFF;
+  width:30%;
+  position:absolute;
+  left: 0;
+  right: 0;
+  top:20%;
+  margin-left: auto;
+  margin-right: auto;
+
+  display:none;
+  height:50%;
+  border-radius: 10px;
+  border: 2px solid black;
+}
+
+/* Tournaments */
+.ltournament-container{
+  display:grid;
+  align-content: flex-start;
+  height:auto;
+}
+
+.ltournament{
+  display:grid;
+  align-content: flex-start;
+  background-color: #F6F6F6;
+}
+
+.bracket{
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+  height: 550px;
+  width:1500px;
+}
+
+.bracket > div{
+  flex:1;
+  display:grid;
+  align-content: space-around;
+  overflow: hidden;
+}
+
+.consolation-bracket{
+  width:1500px;
+  min-height: 500px;
+}
+
+.ltmatch{
+  display:flex;
+  flex:1;
+  font-size: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  width:89.5%;
+  height: 65px;
+  margin-left: 10%;
+}
+
+.ltmatch .teams{
+  flex:4;
+}
+
+/* sidebar */
+.standings-container{
+  display:flex;
+  justify-content: flex-start;
+  position:fixed;
+  left:90vw;
+  height:auto;
+}
+
+.standings{
+  height:auto;
+  width:600px;
+  border-radius: 20px;
+  border: 2px solid #BBBBBB;
+
+  background: #E6E6E6;
+  text-align:center;
+  display:none;
+}

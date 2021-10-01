@@ -1,0 +1,308 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+{% load index %}
+
+{% if message %}
+  <script>alert("{{ message }}")</script>
+{% endif %}
+
+<h1>{{tournament.name}} Tournament!</h1>
+
+{% if not tournament.completed and not request.user == tournament.user and not request.user.is_superuser %}
+<form class="container-fluid form-vertical" method="post" action="">
+  {% csrf_token %}
+  <input class="form-control" type="text" name="username" placeholder="Username" required>
+  <input class="form-control" type="text" name="password" placeholder="Password" required>
+  <input name="enable-editing" type="text" style="display:none" />
+  <button type="submit" class="btn btn-success">Enable Editing</button>
+</form>
+{% else %}
+Editing Enabled
+{% endif %}
+
+{% if tournament.pools.exists %}
+<i class="bi bi-card-list hovering-button" id="standings-on"></i>
+{% endif %}
+<div class="standings">
+
+  <h4 style="display:inline; text-align:center; padding-top:3px;">Current Standings</h4><h2 style="right:15px; display:inline; position:fixed" id="standings-off"><i class="bi bi-x"></i></h2>
+  <table>
+    <tr>
+      <th>Rank</th>
+      <th>Team Name</th>
+      <th>Wins</th>
+      <th>Losses</th>
+      <th>PF</th>
+      <th>PA</th>
+      <th>+/-</th>
+    </tr>
+    {% for team in tournament.teams.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td style="text-align:left;">{{ team.team_name }}</td>
+        <td>{{ team.wins }}</td>
+        <td>{{ team.losses }}</td>
+        <td>{{ team.points_for }}</td>
+        <td>{{ team.points_against }}</td>
+        <td>{{ team.point_differential }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% if tournament.pools.count == 0 %}
+<form class="container-fluid" action="{% url 'tournamentbracket' tournament.id %}" method="POST">
+  {% csrf_token %}
+  <div class="form-group">
+    <input class="form-control" name="num-pools" class="input" type="number" min="0" max="4" placeholder="Number of Pools" required>
+    <input class="form-control" name="password" type="password" placeholder="password" required>
+    <button name="generate-pools" class="btn btn-primary" type="submit">Generate Pools</button>
+  </div>
+</form>
+<br>
+{% endif %}
+
+
+
+{% if tournament.pools.exists %}
+<div class="toggle-container {% if tournament.pools_completed %}off{% endif %}">
+  <i class="bi bi-bounding-box-circles" style="font-size:2rem;"></i>
+  <span style="font-size:30px;">Pools</span>
+
+</div>
+{% endif %}
+
+
+
+<div class="pools-container" style="display:{% if tournament.pools_completed %}none{% endif %}">
+  <div class="dropdown pools-filter" style="display:none;">
+    <a class="dropdown-toggle" role="button" data-toggle="dropdown">Filter<i class="bi bi-funnel-fill"></i></a>
+    <div class="dropdown-menu">
+    {% for pool in tournament.pools.all %}
+      <div class="form-check">
+        <input class="pool-filter" type="checkbox" id="pool-filter{{ pool.poolNumber }}">
+        <label class="form-check-label" for="pool-filter{{ pool.poolNumber }}">Pool {{ pool.poolNumber }}</label>
+      </div>
+    {% endfor %}
+    </div>
+
+    {% for pool in tournament.pools.all %}
+      <div class="bold pool-label" name="pool{{ pool.poolNumber }}">Pool {{ pool.poolNumber }}</div>
+    {% endfor %}
+  </div>
+
+  {% for pool in tournament.pools.all %}
+  <h5 style="width:100%;" id="pool{{ pool.poolNumber }}" class="toggle-container {% if pool.completed %}off{% endif %}">Pool {{ pool.poolNumber }}</h5>
+  <div class="pool" style="display:{% if pool.completed %}none{% endif %}">
+
+    {% for round in pool.rounds.all %}
+      <div class="pround">
+      <h6 style="width:250px;">Round {{ round.round_number }}</h6>
+      <div class="matches">
+        {% for match in round.matches.all %}
+          {% with x=match.match_number y=round.round_number z=pool.poolNumber %}
+
+          <div class="lmatch" data-toggle="modal" data-target="#exampleModalCenter{{ x }}{{ y }}{{ z }}" data-backdrop="static">
+
+            <div class="teams">
+              {% if match|score:1 > match|score:2 %}
+              <div class="bold">{{ match|team:1 }}</div>
+              <div class="match-divider"></div>
+              {{ match|team:2 }}
+              {% elif match|score:2 > match|score:1 %}
+              {{ match|team:1 }}
+              <div class="match-divider"></div>
+              <div class="bold">{{ match|team:2 }}</div>
+              {% else %}
+              {{ match|team:1 }}
+              <div class="match-divider"></div>
+              {{ match|team:2 }}
+              {% endif %}
+            </div>
+
+            {% if match|winner == 1  %}
+              {% if match|score:1 > match|score:2 %}
+              <div class="score">
+                <p class="bold">{{ match|score:1 }}</p>
+                <p>{{ match|score:2 }}</p>
+              </div>
+              {% elif match|score:2 > match|score:1 %}
+              <div class="score">
+                <p>{{ match|score:1 }}</p>
+                <p class="bold">{{ match|score:2 }}</p>
+              </div>
+              {% endif %}
+            {% else %}
+            <div class="score">
+              <p>-</p>
+              <p>-</p>
+            </div>
+            {% endif %}
+
+          </div>
+
+          {% if not tournament.completed and request.user == tournament.user or request.user.is_superuser %}
+          <div class="modal fade" id="exampleModalCenter{{ x }}{{ y }}{{ z }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">{{ match }} Report</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="container-fluid">
+                    <div class="modal-items">
+                      <div class="score-report-teams">
+                        <h6 class="team"></h6>
+                        <h6 class="team">{{ match|team:1 }}</h6>
+                        <h6 class="team">{{ match|team:2 }}</h6>
+                      </div>
+
+                      <form class="score-report" action="{% url 'tournamentbracket' tournament.id %}" method="POST" style="display:{% if match|winner %}none{% endif %}">
+                        {% csrf_token %}
+                        <h6>Result</h6>
+                        <input name="score1" class="input" type="number" min="0" max="25" required/>
+                        <input name="score2" class= "input" type="number" min="0" max="25" required/>
+                        <input name="pool" value="{{ z }}" type="number" style="display: none" />
+                        <input name="pmatch" value="{{ x }}" type="number" style="display: none" />
+                        <input name="round" value="{{ y }}" type="number" style="display: none" />
+                        <button name="report-score" class="btn btn-success" type="submit">Report</button>
+                        <button name="update-score" class="btn btn-success" style="display:none">Update</button>
+                      </form>
+
+                      <div class="modal-scores" style="display:{% if not match|winner %}none{% endif %}">
+                        {% if match|score:1 > match|score:2 %}
+                          <h6>Result</h6>
+                          <span name="score1-text" class="bold">{{ match|score:1 }}</span>
+                          <span name="score2-text" style="padding-top:15px;">{{ match|score:2 }}</span>
+                          <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                        {% else %}
+                          <h6>Result</h6>
+                          <span name="score1-text">{{ match|score:1 }}</span>
+                          <span name="score2-text" class="bold" style="padding-top:15px;">{{ match|score:2 }}</span>
+                          <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+                        {% endif %}
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+
+
+{% if tournament.matches.count == 0 and tournament.pools_completed %}
+<form class="container-fluid" action="{% url 'tournamentbracket' tournament.id %}" method="POST">
+  {% csrf_token %}
+  <div class="form-group">
+    <input class="form-control" name="password" type="password" placeholder="password" required>
+    <button name="generate-tournament" class="btn btn-primary" type="submit">Generate Bracket</button>
+  </div>
+</form
+{% endif %}
+
+{% if tournament.matches.exists %}
+<div class="toggle-container"><i class="bi bi-diagram-3" style="font-size:2rem;"></i><span style="font-size:30px;">Tournament Bracket</span></div>
+<div class="tournament-container">
+  <div class="tournament tournament-{% if tournament.teams.count > 1 and tournament.teams.count < 3 %}2{% elif tournament.teams.count > 2 and tournament.teams.count < 5 %}4{% elif tournament.teams.count > 4 and tournament.teams.count < 9 %}8{% elif tournament.teams.count > 8 and tournament.teams.count < 17 %}16{% elif tournament.teams.count > 16 and tournament.teams.count < 33 %}32{% endif %}">
+
+    {% if tournament.matches.all.count > 15 %}
+    <div class="round">
+      {% include 'tournament/match.html' with x=31 %}
+      {% include 'tournament/match.html' with x=16 %}
+      {% include 'tournament/match.html' with x=23 %}
+      {% include 'tournament/match.html' with x=24 %}
+      {% include 'tournament/match.html' with x=28 %}
+      {% include 'tournament/match.html' with x=19 %}
+      {% include 'tournament/match.html' with x=20 %}
+      {% include 'tournament/match.html' with x=27 %}
+      {% include 'tournament/match.html' with x=30 %}
+      {% include 'tournament/match.html' with x=17 %}
+      {% include 'tournament/match.html' with x=22 %}
+      {% include 'tournament/match.html' with x=25 %}
+      {% include 'tournament/match.html' with x=29 %}
+      {% include 'tournament/match.html' with x=18 %}
+      {% include 'tournament/match.html' with x=21 %}
+      {% include 'tournament/match.html' with x=26 %}
+    </div>
+
+    <div class="between-rounds">
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+      <div class="bracket-lines-32"></div>
+    </div>
+    {% endif %}
+
+    {% if tournament.matches.all.count > 7 %}
+    <div class="round">
+      {% include 'tournament/match.html' with x=15 %}
+      {% include 'tournament/match.html' with x=8 %}
+      {% include 'tournament/match.html' with x=12 %}
+      {% include 'tournament/match.html' with x=11 %}
+      {% include 'tournament/match.html' with x=14 %}
+      {% include 'tournament/match.html' with x=9 %}
+      {% include 'tournament/match.html' with x=13 %}
+      {% include 'tournament/match.html' with x=10 %}
+    </div>
+
+
+    <div class="between-rounds">
+      <div class="bracket-lines-16"></div>
+      <div class="bracket-lines-16"></div>
+      <div class="bracket-lines-16"></div>
+      <div class="bracket-lines-16"></div>
+    </div>
+    {% endif %}
+
+    {% if tournament.matches.all.count > 3 %}
+    <div class="round">
+      {% include 'tournament/match.html' with x=7 %}
+      {% include 'tournament/match.html' with x=4 %}
+      {% include 'tournament/match.html' with x=6 %}
+      {% include 'tournament/match.html' with x=5 %}
+
+    </div>
+    <div class="between-rounds">
+      <div class="bracket-lines-quarters"></div>
+      <div class="bracket-lines-quarters"></div>
+    </div>
+    {% endif %}
+
+    {% if tournament.matches.all.count > 1 %}
+    <div class="round">
+
+        {% include 'tournament/match.html' with x=3 %}
+        {% include 'tournament/match.html' with x=2 %}
+
+    </div>
+    {% endif %}
+
+    <div class="between-rounds">
+      <div class="bracket-lines-semis"></div>
+    </div>
+    <div class="round">
+    {% include 'tournament/match.html' with x=1 %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,169 @@
+.tournament-poster{
+  position: relative;
+  margin:auto;
+}
+
+.poster-overlay{
+  position:absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width:100%;
+}
+
+.poster-x{
+  position:absolute;
+  top:6%;
+  left:93%;
+  display:none;
+  transform: translate(-50%, -50%);
+  -ms-transform:translate(-50%, -50%);
+}
+
+
+/* Pools css */
+.pools-filter{
+  display:flex;
+  font-size:20px;
+  border-radius: 5px;
+  box-shadow: 0 0 3px grey;
+  background-color:white;
+  margin:10px;
+}
+.pools-filter a{
+  color:black;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.pool-label{
+  display:none;
+  margin: 0px 5px 0px 5px;
+}
+
+.pools-container{
+  display:flex;
+  justify-content: flex-start;
+  flex-wrap:wrap;
+  background-color: #F6F6F6;
+  border-radius: 10px;
+  padding-left: 5px;
+  max-width: 100%;
+  margin:auto;
+}
+
+.pool{
+  flex:1;
+  display:flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: space-around;
+  padding-left: 5px;
+}
+
+.pround{
+  display:grid;
+  align-content: flex-start;
+  flex-wrap:wrap;
+}
+
+/* Tournament css */
+.tournament-container{
+  width:100vw;
+  overflow-x: scroll;
+}
+
+.tournament{
+  display: flex;
+  position: relative;
+  background-color: #F6F6F6;
+  border-radius: 10px;
+  height:1500px;
+  width:98vw;
+}
+
+.tournament-2{
+  height:100px;
+}
+.tournament-4{
+  height:200px;
+}
+.tournament-8{
+  height:400px;
+}
+.tournament-16{
+  height:800px;
+}
+.tournament-32{
+  height:1600px;
+}
+
+
+
+.tournament > div{
+  flex:1;
+  display:grid;
+  align-content: space-around;
+  overflow: hidden;
+}
+
+.blank-match{
+  display: flex;
+  flex:1;
+  height: 60px;
+}
+
+@media only screen and (max-width: 600px) {
+  .pools-container{
+    width:95vw;
+    flex-wrap:wrap;
+    align-content: flex-start;
+  }
+  .pround{
+    width:95vw;
+  }
+
+  .tournament-poster{
+    display:none;
+    position:absolute;
+  }
+  .poster{
+    width:95vw;
+    border-radius:10px;
+    margin-top: 10px;
+    margin-left: 2.5vw;
+  }
+  .poster-x{
+    display:block;
+  }
+
+  .tournament-2{
+    width:175px;
+    height:75px;
+    display: flex;
+  }
+  .tournament-4{
+    width:350px;
+    height:150px;
+    display: flex;
+  }
+  .tournament-8{
+    width:525px;
+    height:300px;
+    display: flex;
+  }
+  .tournament-16{
+    width:700px;
+    height:600px;
+    display: flex;
+  }
+  .tournament-32{
+    width:875px;
+    height:1200px;
+    display: flex;
+  }
+
+
+}

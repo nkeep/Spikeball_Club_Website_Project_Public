@@ -1,0 +1,185 @@
+
+.tImg, object
+{
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100vh;
+  padding: 0 0 20px;
+}
+
+.container-fluid
+{
+max-width: 174vh;
+margin-left: auto;
+margin-right: auto;
+}
+
+
+.dropdown:hover .dropdown-menu {display: block;} /* Makes a navbar item hoverable to dropdown menu */
+
+
+.container-fluid div.grid-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 20px;
+}
+
+
+
+/* Pools css */
+.pools-container{
+  display:flex;
+  justify-content: flex-start;
+  background-color: #F6F6F6;
+  border-radius: 10px;
+  padding-left: 5px;
+}
+
+.pool{
+  flex:1;
+  display:flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+
+.pmatch{
+  display:flex;
+  flex:1;
+  font-size: 15px;
+  box-shadow: 0 0 5px grey;
+  border-radius: 10px;
+  background-color: white;
+  max-width: 220px;
+  min-width: 220px;
+  height: 65px;
+  margin-right: 30px;
+  margin-bottom: 10px;
+}
+
+.pmatch .teams{
+  flex:4;
+}
+
+.pmatch .score-report{
+  flex:1;
+  display:grid;
+  justify-content: flex-end;
+}
+
+.pmatch .score-report .input{
+  max-width: 75%;
+  line-height: 5px;
+  align-content: flex-end;
+}
+
+.pmatch-divider{
+  height: 0;
+  width: 80%;
+  margin: 5px 0px;
+  overflow: hidden;
+  border-top: 2px solid black;
+}
+
+
+/* Tournament css */
+.tournament-container{
+  display: flex;
+  position: relative;
+  background-color: #F6F6F6;
+  border-radius: 10px;
+  height: 1100px;
+  width:1500px;
+}
+
+.tournament-container > div{
+  flex:1;
+  display:grid;
+  align-content: space-around;
+  overflow: hidden;
+}
+
+
+.match{
+  display:flex;
+  flex:1;
+  font-size: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  width:89.5%;
+  height: 65px;
+  margin-left: 10%;
+}
+
+.blank-match{
+  display: flex;
+  flex:1;
+  height: 60px;
+}
+
+.match .teams{
+  flex:4;
+  /* white-space: nowrap;
+  text-overflow: clip;
+  overflow: hidden; */
+}
+
+
+.match .score-report .input{
+  max-width: 75%;
+  line-height: 5px;
+  align-content: flex-end;
+}
+
+.bold{
+  font-weight:bold;
+}
+
+.between-rounds{
+  max-width: 5%;
+  align-content: space-between;
+}
+
+.bracket-lines-semis{
+  height:35rem;
+  width:auto;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.bracket-lines-quarters{
+  height:17rem;
+  width:auto;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.bracket-lines-16{
+  height:9rem;
+  width:auto;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.bracket-lines-32{
+  height:4rem;
+  width:auto;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+
+.match-divider{
+  height: 0;
+  width: 100%;
+  margin: 5px -15%;
+  overflow: hidden;
+  border-top: 2px solid black;
+}

@@ -1,0 +1,57 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+  <body>
+
+			<div class="signup-buttons">
+		    <i class="bi bi-people-fill card-list hovering-button" id="teams-on"></i>
+		  </div>
+
+			<div class="signup-container">
+
+
+	      <div class="sign-up">
+          {% if not league.matches.exists %}
+					<h1>Sign-Up for League Here!</h1>
+
+		      <p>Enter the name of each teammate to be added to the league!</p>
+					<form class="form-vertical container-fluid" action="{% url 'leaguesignup' %}" method="POST">
+			      {% csrf_token %}
+						<div class="form-group">
+				      <input class="form-control" type="text" name="team_name" placeholder="Team Name" required />
+				      <input class="form-control" type="text" name="teammate1" placeholder="Teammate 1 Name" required />
+				      <input class="form-control" type="tel" name="phone1" placeholder="Teammate 1 Phone"/>
+				      <input class="form-control" type="text" name="teammate2" placeholder="Teammate 2 Name" required />
+				      <input class="form-control" type="tel" name="phone2" placeholder="Teammate 1 Phone"/>
+							<button class="btn btn-success" type="submit">Submit</button>
+						</div>
+			    </form>
+
+				{% else %}
+					<h4>Sorry, but registration is now closed for this league</h4>
+				{% endif %}
+        </div>
+
+
+				<div class="signed-up-teams">
+
+					<div style="display:flex"><h4 style="display:inline; flex:2; text-align:right; padding-top:3px;">Signed-Up Teams</h4><h2 style="text-align:right; display:inline; flex:1; padding-top:3px; padding-right:3px;"><i class="bi bi-x-lg teams-x" id="teams-off"></i></h2></div>
+			    <br>
+			    {% for team in league.teams.all %}
+
+					<div class="signed-up-team">
+				    <h6> {{ team.team_name }} </h6>
+				    <span> {{ team.teammate1 }} and {{ team.teammate2 }}</span>
+					</div>
+			    {% endfor %}
+
+			  </div>
+			</div>
+
+
+</html>
+
+{% endblock %}

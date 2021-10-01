@@ -1,0 +1,102 @@
+<div class="ltmatch" data-toggle="modal" data-target="#exampleModalCenter{{ bracket.bracket_num }}{{ bracket.sub_bracket_num }}{{ match.round_number }}{{ match.match_number }}" data-backdrop="static">
+  <div class="teams">
+    {% if match.team1_score > match.team2_score %}
+      <div class="bold">{{ match.team1 }}</div>
+      <div class="match-divider"></div>
+      {{ match.team2 }}
+      {% elif match.team1_score < match.team2_score %}
+        {{ match.team1 }}
+        <div class="match-divider"></div>
+        <div class="bold">{{ match.team2 }}</div>
+      {% elif match.team1.team_name == "Bye" and match.team2.team_name != NULL %}
+        {{ match.team1 }}
+        <div class="match-divider"></div>
+        <div class="bold">{{ match.team2 }}</div>
+      {% elif match.team2.team_name == "Bye" and match.team1.team_name != NULL %}
+        <div class="bold">{{ match.team1 }}</div>
+        <div class="match-divider"></div>
+        {{ match.team2 }}
+      {% else %}
+        {{ match.team1 }}
+        <div class="match-divider"></div>
+        {{ match.team2 }}
+    {% endif %}
+  </div>
+
+  {% if match.winner == 1  %}
+  <div class="score">
+    {% if match.team1_score > match.team2_score %}
+      <p class="bold">{{ match.team1_score }}</p>
+      <p>{{ match.team2_score }}</p>
+    {% else %}
+      <p>{{ match.team1_score }}</p>
+      <p class="bold">{{ match.team2_score }}</p>
+    {% endif %}
+  </div>
+  {% elif match.team1.team_name == "Bye" and match.team2.team_name != NULL %}
+  <div class="score">
+    <p>-</p>
+    <p><i class="bi bi-check-lg"></i></p>
+  </div>
+  {% elif match.team2.team_name == "Bye" and match.team1.team_name != NULL %}
+  <div class="score">
+    <p><i class="bi bi-check-lg"></i></p>
+    <p>-</p>
+  </div>
+  {% else %}
+    <div class="score">
+      <p>-</p>
+      <p>-</p>
+    </div>
+  {% endif %}
+</div>
+{% if match.team1.team_name and match.team2.team_name %}
+{% if not match.team2.team_name == "Bye" and not match.team1.team_name == "Bye" and not tournament.completed and request.user == tournament.user or request.user.is_superuser %}
+<div class="modal fade" id="exampleModalCenter{{ bracket.bracket_num }}{{ bracket.sub_bracket_num }}{{ match.round_number }}{{ match.match_number }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Round {{ match.round_number }} Match number {{ match.match_number }} Report</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="modal-items">
+            <div class="score-report-teams">
+              <h6 class="team"></h6>
+              <h6 class="team">{{ match.team1.team_name }}</h6>
+              <h6 class="team">{{ match.team2.team_name }}</h6>
+            </div>
+            <form class="score-report" style="display:{% if match.winner %}none{% endif %} "action="{% url 'schedule' league.id %}" method="POST">
+              {% csrf_token %}
+              <h6>Result</h6>
+              <input name="score1" class="input" type="number" min="0" max="25"/>
+              <input name="score2" class= "input" type="number" min="0" max="25"/>
+              <input name="tmatch-id" value="{{ match.id }}" type="text" style="display: none" />
+              <input name="bracket-id" value="{{ bracket.id }}" type="text" style="display: none" />
+              <button class="btn btn-success" type="submit">Report</button>
+            </form>
+            <div class="modal-scores" style="display:{% if not match.winner %}none{% endif %}">
+              {% if match.team1_score > match.team2_score %}
+                <h6>Result</h6>
+                <span name="score1-text" class="bold">{{ match.team1_score }}</span>
+                <span name="score2-text" style="padding-top:15px;">{{ match.team2_score }}</span>
+                <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+              {% else %}
+                <h6>Result</h6>
+                <span name="score1-text">{{ match.team1_score }}</span>
+                <span name="score2-text" class="bold" style="padding-top:15px;">{{ match.team2_score }}</span>
+                <button name="update-score" class="btn btn-primary update" style="margin-top:10px;">Update</button>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}

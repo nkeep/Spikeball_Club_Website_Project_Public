@@ -1,0 +1,20 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<div class="community-container">
+  <div class="community-header">
+    <h1>Here are the Clubs/Organizations we interact with the most</h1>
+  </div>
+
+  {% for org in orgs %}
+  <div class="community-item">
+    <div class="org-image"><a href="{{ org.link }}" target="_blank"><img src="{{ org.image.url }}" width=180 height=180/></a></div>
+    <a href="{{ org.link }}" target="_blank"><h4>{{ org.name }}</h4></a>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

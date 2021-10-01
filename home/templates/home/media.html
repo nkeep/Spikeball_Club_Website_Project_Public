@@ -1,0 +1,31 @@
+<!-- eventually might want to add ajax to preview stuff on this page -->
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+
+<div class="media-container">
+
+  <div class="media-header">
+    <h1>Check out some of our cool photos and videos of our players!</h1>
+  </div>
+
+  {% for media in medias %}
+  <div class="media">
+    <div class="media-thumbnail">
+      <a href="{{ media.url }}"><img src='{{ media.thumbnail }}'></a>
+    </div>
+      <div class="media-data">
+      <a href="{{ media.url }}">{{ media.title }}</a>
+      <span class="bold media-date">{{ media.date|date:"M d y" }}</span>
+      <span class="media-description">{{ media.description|truncatechars:80 }}</span>
+      <span class="credits">Credits: {{ media.credits }}</span>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}

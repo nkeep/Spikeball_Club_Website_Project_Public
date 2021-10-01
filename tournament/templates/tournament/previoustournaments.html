@@ -1,0 +1,13 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+
+<h1>Previous Tournaments</h1>
+
+{% for tournament in all_tournaments %}
+
+  <h4><a href="{% url 'tournamentbracket' tournament.id %}">{{ tournament.name }}</a></h4><br>
+
+{% endfor %}
+
+{% endblock %}
